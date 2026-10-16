@@ -1,0 +1,190 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #0d0d0d;
+  --bg-2: #1a1a1a;
+  --bg-3: #222222;
+  --line: #2e2e2e;
+  --text: #f4f4f4;
+  --muted: #9aa0a6;
+  --accent: #00d4aa;
+  --cyan: #00e5ff;
+  --cta: #ffb300;
+  --hot: #ff6d00;
+  --danger: #ff5c5c;
+  --ok: #3ee07f;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-2: var(--bg-2);
+  --color-bg-3: var(--bg-3);
+  --color-line: var(--line);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-cyan: var(--cyan);
+  --color-cta: var(--cta);
+  --color-hot: var(--hot);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-montserrat);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+}
+
+body {
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-montserrat), var(--font-inter), sans-serif;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.rim {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 25%, var(--line)),
+    0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.card-surface {
+  background: linear-gradient(180deg, #1d1d1d 0%, #161616 100%);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+
+.input-surface {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: #121212;
+  color: var(--text);
+  padding: 0.65rem 0.8rem;
+  outline: none;
+}
+
+.input-surface:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border-radius: 10px;
+  padding: 0.6rem 1rem;
+  font-weight: 700;
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--cta), var(--hot));
+  color: #111;
+}
+
+.btn-accent {
+  background: var(--accent);
+  color: #06281f;
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--text);
+}
+
+.table-wrap {
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+table.data {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.925rem;
+}
+
+table.data th,
+table.data td {
+  padding: 0.8rem 0.9rem;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  white-space: nowrap;
+}
+
+table.data th {
+  color: var(--muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: #141414;
+}
+
+table.data tr:hover td {
+  background: #1b1b1b;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.enter {
+  animation: fade-up 0.35s ease both;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #print-root,
+  #print-root * {
+    visibility: visible;
+  }
+  #print-root {
+    position: absolute;
+    inset: 0;
+    background: white;
+    color: black;
+  }
+}
