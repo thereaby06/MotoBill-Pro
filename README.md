@@ -79,15 +79,16 @@ Notas:
 
 ## Git y GitHub
 
-El proyecto incluye `.gitignore`. Para versionar (cuando lo indiques):
+El repositorio local ya está inicializado y la rama `main` sigue al remoto [thereaby06/MotoBill-Pro](https://github.com/thereaby06/MotoBill-Pro).
 
 ```bash
-git init
-git add .
-git commit -m "Añade MotoBill Pro en modo demostración"
+git status
+git add <archivos>
+git commit -m "Describe el cambio"
+git push
 ```
 
-No publiques el repositorio ni cambies su visibilidad sin autorización. No hagas `git push` hasta que lo pidas.
+Ojo: `.gitignore` excluye `node_modules`, `.next` y `.env.local`. No publiques el repositorio ni cambies su visibilidad sin autorización, y no hagas `git push` hasta que se pida.
 
 ## Despliegue en Vercel
 

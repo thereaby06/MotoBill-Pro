@@ -41,12 +41,12 @@ export async function POST(request: Request) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role, organization_id")
+    .select("role, organization_id, active")
     .eq("id", requester.id)
     .maybeSingle();
-  if (!profile || profile.role !== "admin") {
+  if (!profile || profile.role !== "admin" || !profile.active) {
     return NextResponse.json(
-      { error: "Solo un administrador puede crear usuarios." },
+      { error: "Solo un administrador activo puede crear usuarios." },
       { status: 403 },
     );
   }

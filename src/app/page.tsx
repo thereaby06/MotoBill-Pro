@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
 
 export const metadata = {
   title: "MotoBill Pro · Gestión para talleres de motos",
@@ -6,7 +7,8 @@ export const metadata = {
 
 export const instant = false;
 
-export default function HomePage() {
+export default function LandingPage() {
+  const demo = !isSupabaseConfigured();
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_20%_0%,rgba(0,229,255,0.12),transparent_32%),radial-gradient(circle_at_90%_10%,rgba(255,109,0,0.12),transparent_26%),#0d0d0d]">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
@@ -16,7 +18,7 @@ export default function HomePage() {
             Entrar
           </Link>
           <Link className="btn btn-primary" href="/registro">
-            Crear taller demo
+            {demo ? "Crear taller demo" : "Crear taller"}
           </Link>
         </div>
       </header>
@@ -34,7 +36,7 @@ export default function HomePage() {
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link className="btn btn-primary" href="/login">
-              Abrir demostración
+              {demo ? "Abrir demostración" : "Iniciar sesión"}
             </Link>
             <Link className="btn btn-accent" href="/registro">
               Registrar taller
@@ -54,25 +56,42 @@ export default function HomePage() {
           </ul>
         </section>
         <aside className="card-surface rim enter p-6">
-          <p className="text-sm text-muted">Accesos de demostración</p>
-          <div className="mt-4 grid gap-3 text-sm">
-            <p>
-              <strong className="text-cta">Administrador:</strong> admin@demo.motobill
-            </p>
-            <p>
-              <strong className="text-cta">Mecánico:</strong> mecanico@demo.motobill
-            </p>
-            <p>
-              <strong className="text-cta">Cajero:</strong> cajero@demo.motobill
-            </p>
-            <p>
-              Contraseña común: <code className="text-accent">demo1234</code>
-            </p>
-          </div>
-          <p className="mt-6 text-xs text-muted">
-            Los datos de ejemplo están marcados como demostración. No representan un taller
-            real.
-          </p>
+          {demo ? (
+            <>
+              <p className="text-sm text-muted">Accesos de demostración</p>
+              <div className="mt-4 grid gap-3 text-sm">
+                <p>
+                  <strong className="text-cta">Administrador:</strong> admin@demo.motobill
+                </p>
+                <p>
+                  <strong className="text-cta">Mecánico:</strong> mecanico@demo.motobill
+                </p>
+                <p>
+                  <strong className="text-cta">Cajero:</strong> cajero@demo.motobill
+                </p>
+                <p>
+                  Contraseña común: <code className="text-accent">demo1234</code>
+                </p>
+              </div>
+              <p className="mt-6 text-xs text-muted">
+                Los datos de ejemplo están marcados como demostración. No representan un taller
+                real.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-sm text-muted">Cómo empezar</p>
+              <div className="mt-4 grid gap-3 text-sm">
+                <p>1. Crea tu taller con el botón «Crear taller».</p>
+                <p>2. Confirma tu correo si Supabase pide verificación.</p>
+                <p>3. Inicia sesión y carga clientes, motos y órdenes.</p>
+                <p>4. Suma a tu equipo desde la sección Usuarios.</p>
+              </div>
+              <p className="mt-6 text-xs text-muted">
+                Los datos de cada taller quedan aislados en su propia organización.
+              </p>
+            </>
+          )}
         </aside>
       </main>
     </div>

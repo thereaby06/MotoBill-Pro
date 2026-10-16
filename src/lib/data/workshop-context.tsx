@@ -68,13 +68,21 @@ const WorkshopContext = createContext<WorkshopContextValue | null>(null);
 
 export function WorkshopProvider({ children }: { children: React.ReactNode }) {
   const configured = isSupabaseConfigured();
-  const [supabase] = useState<SupabaseClient | null>(() =>
-    configured ? createSupabaseBrowserClient() : null,
-  );
-  const [snapshot, setSnapshot] = useState<WorkshopSnapshot | null>(() =>
-    typeof window !== "undefined" ? loadSnapshot() : null,
-  );
+  const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
+  const [snapshot, setSnapshot] = useState<WorkshopSnapshot | null>(null);
   const [toast, setToast] = useState<Toast | null>(null);
+
+  // Inicialización: cargamos el snapshot y supabase en el cliente tras el montaje
+  // para evitar desajustes de hidratación (hydration mismatch) en Next.js 16.
+  // El setState aquí es intencional: solo el navegador puede leer localStorage.
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    if (configured) {
+      setSupabase(createSupabaseBrowserClient());
+    }
+    setSnapshot(loadSnapshot());
+  }, [configured]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const notify = useCallback((kind: Toast["kind"], message: string) => {
     setToast({ id: Date.now(), kind, message });
@@ -246,15 +254,17 @@ export function WorkshopProvider({ children }: { children: React.ReactNode }) {
     };
   }, [configured, notify, refresh, run, snapshot, supabase, toast, user]);
 
-  if (!value) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0d0d0d] text-[#00d4aa]">
-        Cargando taller…
-      </div>
-    );
-  }
-
-  return <WorkshopContext.Provider value={value}>{children}</WorkshopContext.Provider>;
+  return (
+    <WorkshopContext.Provider value={value}>
+      {value ? (
+        children
+      ) : (
+        <div className="flex min-h-screen items-center justify-center bg-[#0d0d0d] text-[#00d4aa]">
+          Cargando taller…
+        </div>
+      )}
+    </WorkshopContext.Provider>
+  );
 }
 
 export function useWorkshop() {
