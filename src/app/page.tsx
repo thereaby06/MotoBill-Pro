@@ -4,6 +4,8 @@ export const metadata = {
   title: "MotoBill Pro · Gestión para talleres de motos",
 };
 
+export const instant = false;
+
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_20%_0%,rgba(0,229,255,0.12),transparent_32%),radial-gradient(circle_at_90%_10%,rgba(255,109,0,0.12),transparent_26%),#0d0d0d]">

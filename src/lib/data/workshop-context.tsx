@@ -13,7 +13,7 @@ import { can, type Permission } from "../permissions";
 import { createSupabaseBrowserClient } from "../supabase/client";
 import { getSupabasePublicConfig, isSupabaseConfigured } from "../supabase/env";
 import { fetchSnapshot, syncSnapshot } from "../supabase/repository";
-import type { AppUser, WorkshopSettings, WorkshopSnapshot } from "../types";
+import type { AppUser, WorkshopSnapshot } from "../types";
 import {
   convertQuoteToInvoice,
   deleteCustomer,
@@ -66,80 +66,32 @@ type WorkshopContextValue = {
 
 const WorkshopContext = createContext<WorkshopContextValue | null>(null);
 
-const EMPTY_SETTINGS: WorkshopSettings = {
-  id: "",
-  name: "",
-  taxId: "",
-  address: "",
-  phone: "",
-  email: "",
-  ivaRate: 19,
-  currency: "COP",
-  invoicePrefix: "FAC",
-  quotePrefix: "COT",
-  workOrderPrefix: "OT",
-  nextInvoiceNumber: 1,
-  nextQuoteNumber: 1,
-  nextWorkOrderNumber: 1,
-};
-
-/** Taller vacío: se usa mientras no hay sesión o mientras se carga la remota. */
-function emptySnapshot(dashboardLayout: string[]): WorkshopSnapshot {
-  return {
-    currentUserId: null,
-    dashboardLayout,
-    settings: { ...EMPTY_SETTINGS },
-    users: [],
-    customers: [],
-    motorcycles: [],
-    inventory: [],
-    workOrders: [],
-    quotes: [],
-    invoices: [],
-    appointments: [],
-  };
-}
-
 export function WorkshopProvider({ children }: { children: React.ReactNode }) {
   const configured = isSupabaseConfigured();
-  const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
-  const [snapshot, setSnapshot] = useState<WorkshopSnapshot | null>(null);
+  const [supabase] = useState<SupabaseClient | null>(() =>
+    configured ? createSupabaseBrowserClient() : null,
+  );
+  const [snapshot, setSnapshot] = useState<WorkshopSnapshot | null>(() =>
+    typeof window !== "undefined" ? loadSnapshot() : null,
+  );
   const [toast, setToast] = useState<Toast | null>(null);
-
-  useEffect(() => {
-    if (!configured) return;
-    // El cliente de navegador solo puede crearse tras el montaje.
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- cliente perezoso del navegador
-    setSupabase(createSupabaseBrowserClient());
-  }, [configured]);
 
   const notify = useCallback((kind: Toast["kind"], message: string) => {
     setToast({ id: Date.now(), kind, message });
     window.setTimeout(() => setToast(null), 4200);
   }, []);
 
-  // Modo demostración: el taller vive en localStorage de este navegador.
-  useEffect(() => {
-    if (configured) return;
-    // Persistencia local: hidrata después del montaje para coincidir con el HTML del servidor.
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- bootstrap from localStorage
-    setSnapshot(loadSnapshot());
-  }, [configured]);
-
   const refresh = useCallback(async () => {
     if (!supabase) return;
     const { url } = getSupabasePublicConfig();
     try {
       const remote = await fetchSnapshot(supabase, url, loadLayout());
-      setSnapshot(remote ?? emptySnapshot(loadLayout()));
+      if (remote) setSnapshot(remote);
     } catch (error) {
-      notify(
-        "error",
-        error instanceof Error ? error.message : "No se pudo leer el taller desde Supabase",
-      );
-      setSnapshot(emptySnapshot(loadLayout()));
+      console.error("Error cargando desde Supabase:", error);
+      // No vaciamos el snapshot, dejamos que siga el modo demo o los datos locales.
     }
-  }, [notify, supabase]);
+  }, [supabase]);
 
   // Sesión de Supabase: carga el taller al iniciar sesión y lo limpia al salir.
   useEffect(() => {
@@ -153,7 +105,7 @@ export function WorkshopProvider({ children }: { children: React.ReactNode }) {
     const { data } = supabase.auth.onAuthStateChange((event) => {
       if (!active) return;
       if (event === "SIGNED_OUT") {
-        setSnapshot(emptySnapshot(loadLayout()));
+        setSnapshot(loadSnapshot());
         return;
       }
       // Se difiere para no bloquear el callback interno de Supabase Auth.
